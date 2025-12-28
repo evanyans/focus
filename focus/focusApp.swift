@@ -25,7 +25,7 @@ struct focusApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            FocusSessionView()
         }
         .modelContainer(sharedModelContainer)
     }
