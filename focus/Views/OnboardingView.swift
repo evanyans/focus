@@ -24,11 +24,11 @@ struct OnboardingView: View {
         NavigationView {
             ZStack {
                 // Paper background
-                Color(red: 0.99, green: 0.98, blue: 0.95)
+                PaperTheme.background
                     .ignoresSafeArea()
                 
                 // Subtle paper texture
-                Color(red: 0.96, green: 0.95, blue: 0.92)
+                PaperTheme.textureOverlay
                     .opacity(0.3)
                     .ignoresSafeArea()
                     .blendMode(.multiply)
@@ -38,7 +38,7 @@ struct OnboardingView: View {
                 HStack(spacing: 8) {
                     ForEach(OnboardingStep.allCases, id: \.self) { step in
                         Circle()
-                            .fill(step.rawValue <= currentStep.rawValue ? Color(red: 0.4, green: 0.5, blue: 0.6) : Color.gray.opacity(0.3))
+                            .fill(step.rawValue <= currentStep.rawValue ? PaperTheme.accentBlue : Color.gray.opacity(0.3))
                             .frame(width: 8, height: 8)
                     }
                 }
@@ -60,14 +60,14 @@ struct OnboardingView: View {
                     Button(action: handlePrimaryAction) {
                         Text(primaryButtonTitle)
                             .font(.system(size: 17, weight: .semibold, design: .rounded))
-                            .foregroundColor(Color(red: 0.95, green: 0.94, blue: 0.91))
+                            .foregroundColor(PaperTheme.buttonPrimaryText)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color(red: 0.3, green: 0.25, blue: 0.2))
+                            .background(PaperTheme.buttonPrimary)
                             .cornerRadius(8)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color(red: 0.4, green: 0.35, blue: 0.3), lineWidth: 1)
+                                    .stroke(PaperTheme.border, lineWidth: 1)
                             )
                             .shadow(color: Color.black.opacity(0.15), radius: 4, x: 2, y: 3)
                     }
@@ -83,7 +83,7 @@ struct OnboardingView: View {
                             }) {
                                 Text("Back")
                                     .font(.subheadline)
-                                    .foregroundColor(Color(red: 0.4, green: 0.5, blue: 0.6))
+                                    .foregroundColor(PaperTheme.accentBlue)
                             }
                         }
                         
@@ -98,7 +98,7 @@ struct OnboardingView: View {
                             }) {
                                 Text("Skip for Now")
                                     .font(.subheadline)
-                                    .foregroundColor(Color(red: 0.5, green: 0.45, blue: 0.4))
+                                    .foregroundColor(PaperTheme.textTertiary)
                             }
                         }
                     }
@@ -109,7 +109,7 @@ struct OnboardingView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
         }
-        .preferredColorScheme(.light) // Force light mode for paper background
+        .preferredColorScheme(.light) // Needed for status bar to show dark text on light background
         .sheet(isPresented: $showAppSelection) {
             AppSelectionView()
         }
@@ -146,15 +146,15 @@ struct OnboardingView: View {
         VStack(spacing: 24) {
             Image(systemName: "brain.head.profile")
                 .font(.system(size: 100))
-                .foregroundStyle(Color(red: 0.4, green: 0.5, blue: 0.6))
+                .foregroundStyle(PaperTheme.accentBlue)
             
             Text("Welcome to Focus")
                 .font(.system(size: 36, weight: .bold, design: .serif))
-                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                .foregroundStyle(PaperTheme.textPrimary)
             
             Text("Block distracting apps and stay focused on what matters")
                 .font(.body)
-                .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                .foregroundStyle(PaperTheme.textSecondary)
                 .multilineTextAlignment(.center)
             
             VStack(alignment: .leading, spacing: 16) {
@@ -171,16 +171,16 @@ struct OnboardingView: View {
         VStack(spacing: 24) {
             Image(systemName: "bell.badge.fill")
                 .font(.system(size: 80))
-                .foregroundStyle(Color(red: 0.5, green: 0.6, blue: 0.45))
+                .foregroundStyle(PaperTheme.accentGreen)
             
             Text("Enable Notifications")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                .foregroundStyle(PaperTheme.textPrimary)
             
             Text("Get notified when your focus sessions are complete")
                 .font(.body)
-                .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                .foregroundStyle(PaperTheme.textSecondary)
                 .multilineTextAlignment(.center)
             
             VStack(spacing: 16) {
@@ -193,17 +193,17 @@ struct OnboardingView: View {
             if hasRequestedNotifications {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(Color(red: 0.5, green: 0.6, blue: 0.45))
+                        .foregroundStyle(PaperTheme.accentGreen)
                     Text("Notification permission requested")
                         .font(.subheadline)
-                        .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                        .foregroundStyle(PaperTheme.textPrimary)
                 }
                 .padding()
-                .background(Color(red: 0.97, green: 0.96, blue: 0.93))
+                .background(PaperTheme.cardBackground)
                 .cornerRadius(8)
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1)
+                        .stroke(PaperTheme.border, lineWidth: 1)
                 )
             }
         }
@@ -214,23 +214,23 @@ struct OnboardingView: View {
         VStack(spacing: 24) {
             Image(systemName: "hourglass.circle.fill")
                 .font(.system(size: 80))
-                .foregroundStyle(Color(red: 0.7, green: 0.5, blue: 0.3))
+                .foregroundStyle(PaperTheme.accentOrange)
             
             Text("Allow Screen Time Access")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                .foregroundStyle(PaperTheme.textPrimary)
             
             Text("Required to block apps during focus sessions")
                 .font(.body)
-                .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                .foregroundStyle(PaperTheme.textSecondary)
                 .multilineTextAlignment(.center)
             
             // What will happen
             VStack(alignment: .leading, spacing: 16) {
                 Text("What happens next:")
                     .font(.headline)
-                    .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                    .foregroundStyle(PaperTheme.textPrimary)
                 
                 VStack(spacing: 12) {
                     InstructionStep(number: 1, text: "Tap 'Request Permission' below")
@@ -240,65 +240,65 @@ struct OnboardingView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
-            .background(Color(red: 0.97, green: 0.96, blue: 0.93))
+            .background(PaperTheme.cardBackground)
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1)
+                    .stroke(PaperTheme.border, lineWidth: 1)
             )
             
             // Visual example
             VStack(spacing: 12) {
                 Text("You'll see a popup like this:")
                     .font(.caption)
-                    .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                    .foregroundStyle(PaperTheme.textSecondary)
                 
                 // Mock dialog
                 VStack(spacing: 16) {
                     Image(systemName: "hourglass")
                         .font(.system(size: 40))
-                        .foregroundStyle(Color(red: 0.7, green: 0.5, blue: 0.3))
+                        .foregroundStyle(PaperTheme.accentOrange)
                     
                     Text("\"Focus\" Would Like to Access Screen Time")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                        .foregroundStyle(PaperTheme.textPrimary)
                         .multilineTextAlignment(.center)
                     
                     Text("This allows the app to block selected apps during focus sessions.")
                         .font(.caption)
-                        .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                        .foregroundStyle(PaperTheme.textSecondary)
                         .multilineTextAlignment(.center)
                     
                     HStack(spacing: 12) {
                         Text("Don't Allow")
                             .font(.caption)
-                            .foregroundStyle(Color(red: 0.6, green: 0.3, blue: 0.25))
+                            .foregroundStyle(PaperTheme.accentRed)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Color(red: 0.95, green: 0.94, blue: 0.91))
+                            .background(PaperTheme.background)
                             .cornerRadius(8)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1)
+                                    .stroke(PaperTheme.border, lineWidth: 1)
                             )
                         
                         Text("Continue")
                             .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundColor(Color(red: 0.95, green: 0.94, blue: 0.91))
+                            .foregroundColor(PaperTheme.buttonPrimaryText)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Color(red: 0.4, green: 0.5, blue: 0.6))
+                            .background(PaperTheme.accentBlue)
                             .cornerRadius(8)
                     }
                 }
                 .padding()
-                .background(Color(red: 1.0, green: 0.99, blue: 0.97))
+                .background(PaperTheme.background)
                 .cornerRadius(12)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color(red: 0.8, green: 0.78, blue: 0.73), lineWidth: 1)
+                            .stroke(PaperTheme.border, lineWidth: 1)
                 )
             }
             .padding(.horizontal)
@@ -308,38 +308,38 @@ struct OnboardingView: View {
                 if screenTimeService.isAuthorized {
                     HStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(Color(red: 0.5, green: 0.6, blue: 0.45))
+                            .foregroundStyle(PaperTheme.accentGreen)
                         Text("Permission granted! ✓")
                             .font(.subheadline)
-                            .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                            .foregroundStyle(PaperTheme.textPrimary)
                     }
                     .padding()
-                    .background(Color(red: 0.97, green: 0.96, blue: 0.93))
+                    .background(PaperTheme.cardBackground)
                     .cornerRadius(8)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1)
+                            .stroke(PaperTheme.border, lineWidth: 1)
                     )
                 } else {
                     VStack(spacing: 8) {
                         HStack(spacing: 8) {
                             Image(systemName: "info.circle.fill")
-                                .foregroundStyle(Color(red: 0.7, green: 0.5, blue: 0.3))
+                                .foregroundStyle(PaperTheme.accentOrange)
                             Text("Permission not granted")
                                 .font(.subheadline)
-                                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                                .foregroundStyle(PaperTheme.textPrimary)
                         }
                         Text("You can skip for now and try again later in Settings")
                             .font(.caption)
-                            .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                            .foregroundStyle(PaperTheme.textSecondary)
                             .multilineTextAlignment(.center)
                     }
                     .padding()
-                    .background(Color(red: 0.97, green: 0.96, blue: 0.93))
+                    .background(PaperTheme.cardBackground)
                     .cornerRadius(8)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1)
+                            .stroke(PaperTheme.border, lineWidth: 1)
                     )
                 }
             }
@@ -351,16 +351,16 @@ struct OnboardingView: View {
         VStack(spacing: 24) {
             Image(systemName: "apps.iphone")
                 .font(.system(size: 80))
-                .foregroundStyle(Color(red: 0.4, green: 0.5, blue: 0.6))
+                .foregroundStyle(PaperTheme.accentBlue)
             
             Text("Select Apps to Block")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                .foregroundStyle(PaperTheme.textPrimary)
             
             Text("Choose which apps distract you the most")
                 .font(.body)
-                .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                .foregroundStyle(PaperTheme.textSecondary)
                 .multilineTextAlignment(.center)
             
             VStack(spacing: 16) {
@@ -374,10 +374,10 @@ struct OnboardingView: View {
                 VStack(spacing: 8) {
                     HStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(Color(red: 0.5, green: 0.6, blue: 0.45))
+                            .foregroundStyle(PaperTheme.accentGreen)
                         Text("\(appSettings.selectedApps.applicationTokens.count) apps selected")
                             .font(.subheadline)
-                            .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                            .foregroundStyle(PaperTheme.textPrimary)
                     }
                     
                     Button(action: {
@@ -385,34 +385,34 @@ struct OnboardingView: View {
                     }) {
                         Text("Edit Selection")
                             .font(.caption)
-                            .foregroundColor(Color(red: 0.4, green: 0.5, blue: 0.6))
+                            .foregroundColor(PaperTheme.accentBlue)
                     }
                 }
                 .padding()
-                .background(Color(red: 0.97, green: 0.96, blue: 0.93))
+                .background(PaperTheme.cardBackground)
                 .cornerRadius(8)
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1)
+                        .stroke(PaperTheme.border, lineWidth: 1)
                 )
             } else if !screenTimeService.isAuthorized {
                 VStack(spacing: 8) {
                     Image(systemName: "info.circle")
-                        .foregroundStyle(Color(red: 0.4, green: 0.5, blue: 0.6))
+                        .foregroundStyle(PaperTheme.accentBlue)
                     Text("Screen Time access required to select apps")
                         .font(.caption)
-                        .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                        .foregroundStyle(PaperTheme.textSecondary)
                         .multilineTextAlignment(.center)
                     Text("You can set this up later in Settings")
                         .font(.caption)
-                        .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                        .foregroundStyle(PaperTheme.textSecondary)
                 }
                 .padding()
-                .background(Color(red: 0.97, green: 0.96, blue: 0.93))
+                .background(PaperTheme.cardBackground)
                 .cornerRadius(8)
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1)
+                        .stroke(PaperTheme.border, lineWidth: 1)
                 )
             }
         }
@@ -525,16 +525,16 @@ struct FeatureRow: View {
         HStack(spacing: 16) {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundStyle(Color(red: 0.4, green: 0.5, blue: 0.6)) // Fixed paper blue
+                .foregroundStyle(PaperTheme.accentBlue) // Fixed paper blue
                 .frame(width: 40)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.headline)
-                    .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1)) // Fixed dark brown
+                    .foregroundStyle(PaperTheme.textPrimary) // Fixed dark brown
                 Text(description)
                     .font(.subheadline)
-                    .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3)) // Fixed medium brown
+                    .foregroundStyle(PaperTheme.textSecondary) // Fixed medium brown
             }
             
             Spacer()
@@ -550,20 +550,20 @@ struct InstructionStep: View {
         HStack(spacing: 16) {
             ZStack {
                 Circle()
-                    .fill(Color(red: 0.97, green: 0.96, blue: 0.93)) // Paper card color
+                    .fill(PaperTheme.cardBackground)
                     .frame(width: 32, height: 32)
                     .overlay(
                         Circle()
-                            .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1)
+                            .stroke(PaperTheme.border, lineWidth: 1)
                     )
                 Text("\(number)")
                     .font(.headline)
-                    .foregroundStyle(Color(red: 0.4, green: 0.5, blue: 0.6)) // Fixed paper blue
+                    .foregroundStyle(PaperTheme.accentBlue) // Fixed paper blue
             }
             
             Text(text)
                 .font(.body)
-                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1)) // Fixed dark brown
+                .foregroundStyle(PaperTheme.textPrimary) // Fixed dark brown
             
             Spacer()
         }

@@ -18,11 +18,11 @@ struct SessionHistoryView: View {
         NavigationView {
             ZStack {
                 // Paper background
-                Color(red: 0.99, green: 0.98, blue: 0.95)
+                PaperTheme.background
                     .ignoresSafeArea()
                 
                 // Subtle paper texture
-                Color(red: 0.96, green: 0.95, blue: 0.92)
+                PaperTheme.textureOverlay
                     .opacity(0.3)
                     .ignoresSafeArea()
                     .blendMode(.multiply)
@@ -49,11 +49,10 @@ struct SessionHistoryView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundColor(Color(red: 0.3, green: 0.25, blue: 0.2))
+                    .foregroundColor(PaperTheme.textPrimary)
                 }
             }
         }
-        .preferredColorScheme(.light) // Force light mode for paper background
     }
     
     // MARK: - Stats Section
@@ -62,7 +61,7 @@ struct SessionHistoryView: View {
         VStack(spacing: 16) {
             Text("Your Stats")
                 .font(.system(size: 18, weight: .semibold, design: .serif))
-                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                .foregroundStyle(PaperTheme.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             HStack(spacing: 16) {
@@ -109,7 +108,7 @@ struct SessionHistoryView: View {
         VStack(spacing: 16) {
             Text("Recent Sessions")
                 .font(.system(size: 18, weight: .semibold, design: .serif))
-                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                .foregroundStyle(PaperTheme.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             VStack(spacing: 12) {
@@ -133,15 +132,15 @@ struct SessionHistoryView: View {
         VStack(spacing: 16) {
             Image(systemName: "clock.badge.questionmark")
                 .font(.system(size: 60))
-                .foregroundStyle(Color(red: 0.5, green: 0.45, blue: 0.4))
+                .foregroundStyle(PaperTheme.textTertiary)
             
             Text("No Sessions Yet")
                 .font(.system(size: 22, weight: .semibold, design: .serif))
-                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                .foregroundStyle(PaperTheme.textPrimary)
             
             Text("Complete a focus session to see it here")
                 .font(.subheadline)
-                .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                .foregroundStyle(PaperTheme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .padding(.vertical, 60)
@@ -197,19 +196,19 @@ struct StatCard: View {
             Text(value)
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                .foregroundStyle(PaperTheme.textPrimary)
             
             Text(title)
                 .font(.caption)
-                .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                .foregroundStyle(PaperTheme.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color(red: 0.97, green: 0.96, blue: 0.93))
+        .background(PaperTheme.cardBackground)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1.5)
+                .stroke(PaperTheme.border, lineWidth: 1.5)
         )
         .shadow(color: Color.black.opacity(0.08), radius: 3, x: 2, y: 2)
     }
@@ -217,11 +216,11 @@ struct StatCard: View {
     private func paperIconColor(for color: Color) -> Color {
         // Muted, earthy versions of colors
         switch color {
-        case .blue: return Color(red: 0.4, green: 0.5, blue: 0.6)
-        case .green: return Color(red: 0.5, green: 0.6, blue: 0.45)
-        case .orange: return Color(red: 0.7, green: 0.5, blue: 0.3)
-        case .red: return Color(red: 0.6, green: 0.3, blue: 0.25)
-        default: return Color(red: 0.4, green: 0.35, blue: 0.3)
+        case .blue: return PaperTheme.accentBlue
+        case .green: return PaperTheme.accentGreen
+        case .orange: return PaperTheme.accentOrange
+        case .red: return PaperTheme.accentRed
+        default: return PaperTheme.textSecondary
         }
     }
 }
@@ -237,25 +236,25 @@ struct SessionRow: View {
             Image(systemName: session.wasCompleted ? "checkmark.circle.fill" : "xmark.circle.fill")
                 .font(.title2)
                 .foregroundStyle(session.wasCompleted ? 
-                    Color(red: 0.5, green: 0.6, blue: 0.45) : // Muted green
-                    Color(red: 0.7, green: 0.5, blue: 0.3))   // Muted orange
+                    PaperTheme.accentGreen : 
+                    PaperTheme.accentOrange)
             
             VStack(alignment: .leading, spacing: 4) {
                 // Date and time
                 Text(session.startTime, style: .date)
                     .font(.headline)
-                    .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                    .foregroundStyle(PaperTheme.textPrimary)
                 
                 HStack(spacing: 8) {
                     // Duration
                     Label(formatDuration(session.actualDuration), systemImage: "clock")
                         .font(.caption)
-                        .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                        .foregroundStyle(PaperTheme.textSecondary)
                     
                     // Status
                     Text(session.wasCompleted ? "Completed" : "Ended Early")
                         .font(.caption)
-                        .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                        .foregroundStyle(PaperTheme.textSecondary)
                 }
             }
             
@@ -264,14 +263,14 @@ struct SessionRow: View {
             // Time
             Text(session.startTime, style: .time)
                 .font(.subheadline)
-                .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                .foregroundStyle(PaperTheme.textSecondary)
         }
         .padding()
-        .background(Color(red: 0.97, green: 0.96, blue: 0.93))
+        .background(PaperTheme.cardBackground)
         .cornerRadius(8)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1)
+                .stroke(PaperTheme.border, lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.06), radius: 2, x: 1, y: 2)
     }

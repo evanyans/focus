@@ -20,7 +20,7 @@ struct SettingsView: View {
         NavigationView {
             ZStack {
                 // Paper background
-                Color(red: 0.99, green: 0.98, blue: 0.95)
+                PaperTheme.background
                     .ignoresSafeArea()
                 
                 List {
@@ -128,7 +128,7 @@ struct SettingsView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundColor(Color(red: 0.3, green: 0.25, blue: 0.2))
+                    .foregroundColor(PaperTheme.textPrimary)
                 }
             }
             .sheet(isPresented: $showAppSelection) {
@@ -138,7 +138,6 @@ struct SettingsView: View {
                 ScreenTimeInstructionsView()
             }
         }
-        .preferredColorScheme(.light) // Force light mode for paper background
     }
 }
 
@@ -154,22 +153,24 @@ struct ScreenTimeInstructionsView: View {
                 VStack(spacing: 32) {
                     Image(systemName: "hourglass.circle.fill")
                         .font(.system(size: 80))
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(PaperTheme.accentOrange)
                         .padding(.top, 40)
                     
                     Text("Enable Screen Time Access")
                         .font(.title)
                         .fontWeight(.bold)
+                        .foregroundStyle(PaperTheme.textPrimary)
                     
                     Text("Tap the button below to request permission")
                         .font(.body)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(PaperTheme.textSecondary)
                         .multilineTextAlignment(.center)
                     
                     // What will happen
                     VStack(alignment: .leading, spacing: 16) {
                         Text("What will happen:")
                             .font(.headline)
+                            .foregroundStyle(PaperTheme.textPrimary)
                         
                         VStack(spacing: 12) {
                             InstructionStep(number: 1, text: "Tap 'Request Permission' below")
@@ -178,8 +179,12 @@ struct ScreenTimeInstructionsView: View {
                         }
                     }
                     .padding()
-                    .background(Color.blue.opacity(0.05))
+                    .background(PaperTheme.cardBackground)
                     .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(PaperTheme.border, lineWidth: 1)
+                    )
                     .padding(.horizontal)
                     
                     // Request button
@@ -200,18 +205,22 @@ struct ScreenTimeInstructionsView: View {
                             HStack {
                                 if isRequesting {
                                     ProgressView()
-                                        .tint(.white)
+                                        .tint(PaperTheme.buttonPrimaryText)
                                 } else {
                                     Image(systemName: "hand.tap")
                                 }
                                 Text(isRequesting ? "Requesting..." : "Request Permission")
                             }
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(PaperTheme.buttonPrimaryText)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.blue)
+                            .background(PaperTheme.buttonPrimary)
                             .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(PaperTheme.border, lineWidth: 1)
+                            )
                         }
                         .disabled(isRequesting)
                         .padding(.horizontal, 40)
@@ -223,20 +232,25 @@ struct ScreenTimeInstructionsView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.title)
-                                    .foregroundStyle(.green)
+                                    .foregroundStyle(PaperTheme.accentGreen)
                                 Text("Access Granted!")
                                     .font(.title3)
                                     .fontWeight(.semibold)
+                                    .foregroundStyle(PaperTheme.textPrimary)
                             }
                             
                             Text("You can now select apps to block during focus sessions")
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(PaperTheme.textSecondary)
                                 .multilineTextAlignment(.center)
                         }
                         .padding()
-                        .background(Color.green.opacity(0.1))
+                        .background(PaperTheme.cardBackground)
                         .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(PaperTheme.border, lineWidth: 1)
+                        )
                         .padding(.horizontal)
                     }
                     

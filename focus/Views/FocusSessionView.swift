@@ -111,7 +111,7 @@ struct FocusSessionView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Recent Sessions")
                 .font(.system(size: 18, weight: .semibold, design: .serif))
-                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                .foregroundStyle(PaperTheme.textPrimary)
                 .padding(.horizontal, 4)
             
             VStack(spacing: 8) {
@@ -131,19 +131,47 @@ struct FocusSessionView: View {
                             Image(systemName: "chevron.right")
                                 .font(.caption)
                         }
-                        .foregroundStyle(Color(red: 0.3, green: 0.25, blue: 0.2))
+                        .foregroundStyle(PaperTheme.textPrimary)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color(red: 0.97, green: 0.96, blue: 0.93))
+                        .background(PaperTheme.cardBackground)
                         .cornerRadius(8)
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1)
+                                .stroke(PaperTheme.border, lineWidth: 1)
                         )
                         .shadow(color: Color.black.opacity(0.06), radius: 2, x: 1, y: 2)
                     }
                 }
             }
+        }
+    }
+    
+    // MARK: - Empty State
+    
+    private var emptyStateView: some View {
+        VStack(spacing: 16) {
+            Text("Recent Sessions")
+                .font(.system(size: 18, weight: .semibold, design: .serif))
+                .foregroundStyle(PaperTheme.textPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 4)
+            
+            VStack(spacing: 12) {
+                Image(systemName: "hourglass")
+                    .font(.system(size: 48))
+                    .foregroundStyle(PaperTheme.textTertiary)
+                
+                Text("No sessions yet")
+                    .font(.headline)
+                    .foregroundStyle(PaperTheme.textPrimary)
+                
+                Text("Start your first focus session to track your progress")
+                    .font(.subheadline)
+                    .foregroundStyle(PaperTheme.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.vertical, 40)
         }
     }
     
@@ -194,11 +222,11 @@ struct FocusSessionView: View {
         NavigationView {
             ZStack {
                 // Paper background
-                Color(red: 0.99, green: 0.98, blue: 0.95) // Cream/off-white
+                PaperTheme.background
                     .ignoresSafeArea()
                 
                 // Subtle paper texture overlay
-                Color(red: 0.96, green: 0.95, blue: 0.92)
+                PaperTheme.textureOverlay
                     .opacity(0.3)
                     .ignoresSafeArea()
                     .blendMode(.multiply)
@@ -214,7 +242,7 @@ struct FocusSessionView: View {
                             // App title - handwritten style
                             Text("Focus")
                                 .font(.system(size: 40, weight: .bold, design: .serif))
-                                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1)) // Dark brown
+                                .foregroundStyle(PaperTheme.textPrimary)
                                 .padding(.top, 40)
                             
                             // Start button - paper style
@@ -223,30 +251,32 @@ struct FocusSessionView: View {
                             }) {
                                 Text("Start Focus Session")
                                     .font(.system(size: 17, weight: .semibold, design: .rounded))
-                                    .foregroundColor(Color(red: 0.95, green: 0.94, blue: 0.91))
+                                    .foregroundColor(PaperTheme.buttonPrimaryText)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 18)
-                                    .background(Color(red: 0.3, green: 0.25, blue: 0.2)) // Warm dark brown
+                                    .background(PaperTheme.buttonPrimary)
                                     .cornerRadius(8)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 8)
-                                            .stroke(Color(red: 0.4, green: 0.35, blue: 0.3), lineWidth: 1)
+                                            .stroke(PaperTheme.border, lineWidth: 1)
                                     )
-                                    .shadow(color: Color.black.opacity(0.15), radius: 4, x: 2, y: 3)
+                                    .shadow(color: PaperTheme.shadow, radius: 4, x: 2, y: 3)
                             }
                             .padding(.horizontal, 24)
                             
-                            // Stats and sessions
-                            if !sessions.isEmpty {
-                                VStack(spacing: 20) {
-                                    // Stats cards
-                                    statsGrid
-                                    
-                                    // Recent sessions list
+                            // Stats and sessions - always show
+                            VStack(spacing: 20) {
+                                // Stats cards
+                                statsGrid
+                                
+                                // Recent sessions list or empty state
+                                if !sessions.isEmpty {
                                     recentSessionsList
+                                } else {
+                                    emptyStateView
                                 }
-                                .padding(.horizontal, 24)
                             }
+                            .padding(.horizontal, 24)
                             
                             Spacer(minLength: 40)
                         }
@@ -273,7 +303,6 @@ struct FocusSessionView: View {
                 SessionHistoryView()
             }
         }
-        .preferredColorScheme(.light) // Force light mode for paper background
     }
 }
 
@@ -293,20 +322,20 @@ struct StatBox: View {
             
             Text(value)
                 .font(.system(size: 28, weight: .bold, design: .rounded))
-                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                .foregroundStyle(PaperTheme.textPrimary)
             
             Text(label)
                 .font(.caption)
                 .fontWeight(.medium)
-                .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                .foregroundStyle(PaperTheme.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)
-        .background(Color(red: 0.97, green: 0.96, blue: 0.93)) // Slightly darker cream
+        .background(PaperTheme.cardBackground)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1.5)
+                .stroke(PaperTheme.border, lineWidth: 1.5)
         )
         .shadow(color: Color.black.opacity(0.08), radius: 3, x: 2, y: 2)
     }
@@ -314,11 +343,11 @@ struct StatBox: View {
     private func paperIconColor(for color: Color) -> Color {
         // Muted, earthy versions of colors
         switch color {
-        case .blue: return Color(red: 0.4, green: 0.5, blue: 0.6)
-        case .green: return Color(red: 0.5, green: 0.6, blue: 0.45)
-        case .orange: return Color(red: 0.7, green: 0.5, blue: 0.3)
-        case .purple: return Color(red: 0.6, green: 0.45, blue: 0.6)
-        default: return Color(red: 0.4, green: 0.35, blue: 0.3)
+        case .blue: return PaperTheme.accentBlue
+        case .green: return PaperTheme.accentGreen
+        case .orange: return PaperTheme.accentOrange
+        case .purple: return PaperTheme.accentPurple
+        default: return PaperTheme.textSecondary
         }
     }
 }
@@ -333,8 +362,8 @@ struct CompactSessionRow: View {
             // Status icon - earthy colors
             Image(systemName: session.wasCompleted ? "checkmark.circle.fill" : "xmark.circle.fill")
                 .foregroundStyle(session.wasCompleted ? 
-                    Color(red: 0.5, green: 0.6, blue: 0.45) : // Muted green
-                    Color(red: 0.7, green: 0.5, blue: 0.3))   // Muted orange
+                    PaperTheme.accentGreen : 
+                    PaperTheme.accentOrange)
                 .font(.title3)
             
             VStack(alignment: .leading, spacing: 2) {
@@ -343,21 +372,21 @@ struct CompactSessionRow: View {
                     Text(formatDuration(session.actualDuration))
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                        .foregroundStyle(PaperTheme.textPrimary)
                     
                     Text("•")
                         .font(.caption)
-                        .foregroundStyle(Color(red: 0.5, green: 0.45, blue: 0.4))
+                        .foregroundStyle(PaperTheme.textTertiary)
                     
                     Text(session.wasCompleted ? "Completed" : "Ended Early")
                         .font(.caption)
-                        .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                        .foregroundStyle(PaperTheme.textSecondary)
                 }
                 
                 // Static date
                 Text(formatDate(session.startTime))
                     .font(.caption2)
-                    .foregroundStyle(Color(red: 0.5, green: 0.45, blue: 0.4))
+                    .foregroundStyle(PaperTheme.textTertiary)
             }
             
             Spacer()
@@ -365,16 +394,16 @@ struct CompactSessionRow: View {
             // Time
             Text(session.startTime, style: .time)
                 .font(.caption)
-                .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                .foregroundStyle(PaperTheme.textSecondary)
         }
         .padding()
-        .background(Color(red: 0.97, green: 0.96, blue: 0.93))
+        .background(PaperTheme.cardBackground)
         .cornerRadius(8)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1)
+                .stroke(PaperTheme.border, lineWidth: 1)
         )
-        .shadow(color: Color.black.opacity(0.06), radius: 2, x: 1, y: 2)
+        .shadow(color: PaperTheme.shadow, radius: 2, x: 1, y: 2)
     }
     
     private func formatDuration(_ duration: TimeInterval) -> String {

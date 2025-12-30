@@ -14,11 +14,11 @@ struct ActiveSessionView: View {
     var body: some View {
         ZStack {
             // Paper background
-            Color(red: 0.99, green: 0.98, blue: 0.95)
+            PaperTheme.background
                 .ignoresSafeArea()
             
             // Subtle paper texture
-            Color(red: 0.96, green: 0.95, blue: 0.92)
+            PaperTheme.textureOverlay
                 .opacity(0.3)
                 .ignoresSafeArea()
                 .blendMode(.multiply)
@@ -29,28 +29,28 @@ struct ActiveSessionView: View {
                 // Session status
                 Text("Focus Session")
                     .font(.system(size: 22, weight: .semibold, design: .serif))
-                    .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                    .foregroundStyle(PaperTheme.textPrimary)
                 
                 // Timer display with paper card
                 VStack(spacing: 12) {
                     Text(viewModel.formatTime(viewModel.remainingTime))
                         .font(.system(size: 72, weight: .bold, design: .rounded))
                         .monospacedDigit()
-                        .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
+                        .foregroundStyle(PaperTheme.textPrimary)
                     
                     Text("Stay focused")
                         .font(.body)
-                        .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
+                        .foregroundStyle(PaperTheme.textSecondary)
                 }
                 .padding(.vertical, 50)
                 .padding(.horizontal, 40)
-                .background(Color(red: 0.97, green: 0.96, blue: 0.93))
+                .background(PaperTheme.cardBackground)
                 .cornerRadius(16)
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 2)
+                        .stroke(PaperTheme.border, lineWidth: 2)
                 )
-                .shadow(color: Color.black.opacity(0.12), radius: 6, x: 3, y: 4)
+                .shadow(color: PaperTheme.shadow, radius: 6, x: 3, y: 4)
                 
                 Spacer()
                 
@@ -60,23 +60,22 @@ struct ActiveSessionView: View {
                 }) {
                     Text("End Session")
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
-                        .foregroundColor(Color(red: 0.95, green: 0.94, blue: 0.91))
+                        .foregroundColor(PaperTheme.buttonPrimaryText)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 18)
-                        .background(Color(red: 0.6, green: 0.3, blue: 0.25)) // Warm reddish-brown
+                        .background(PaperTheme.accentRed)
                         .cornerRadius(8)
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color(red: 0.7, green: 0.4, blue: 0.35), lineWidth: 1)
+                                .stroke(PaperTheme.border, lineWidth: 1)
                         )
-                        .shadow(color: Color.black.opacity(0.15), radius: 4, x: 2, y: 3)
+                        .shadow(color: PaperTheme.shadow, radius: 4, x: 2, y: 3)
                 }
                 .padding(.horizontal, 40)
                 .padding(.bottom, 40)
             }
             .padding()
         }
-        .preferredColorScheme(.light) // Force light mode for paper background
     }
 }
 
