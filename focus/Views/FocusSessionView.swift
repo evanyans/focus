@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
+import SwiftData
 import FamilyControls
 
 /// Main view for the focus app - shows start button or active session
 struct FocusSessionView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
+    @Query(sort: \FocusSession.startTime, order: .reverse) private var sessions: [FocusSession]
+    
     @StateObject private var viewModel = FocusSessionViewModel()
     @ObservedObject private var appState = AppState.shared
     @ObservedObject private var appSettings = AppSettings.shared
@@ -58,6 +61,112 @@ struct FocusSessionView: View {
         }
     }
     
+    // MARK: - Stats Grid
+    
+    private var statsGrid: some View {
+        VStack(spacing: 12) {
+            // Top row
+            HStack(spacing: 12) {
+                // Total sessions
+                StatBox(
+                    value: "\(sessions.count)",
+                    label: "Sessions",
+                    icon: "checkmark.circle.fill",
+                    color: .blue
+                )
+                
+                // Total time
+                StatBox(
+                    value: formatTotalTime(totalFocusTime),
+                    label: "Total Time",
+                    icon: "clock.fill",
+                    color: .green
+                )
+            }
+            
+            // Bottom row
+            HStack(spacing: 12) {
+                // Completed
+                StatBox(
+                    value: "\(completedSessionsCount)",
+                    label: "Completed",
+                    icon: "star.fill",
+                    color: .orange
+                )
+                
+                // Completion rate
+                StatBox(
+                    value: "\(completionPercentage)%",
+                    label: "Rate",
+                    icon: "chart.line.uptrend.xyaxis",
+                    color: .purple
+                )
+            }
+        }
+    }
+    
+    // MARK: - Recent Sessions List
+    
+    private var recentSessionsList: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Recent Sessions")
+                .font(.headline)
+                .padding(.horizontal, 4)
+            
+            VStack(spacing: 8) {
+                ForEach(sessions.prefix(10)) { session in
+                    CompactSessionRow(session: session)
+                }
+                
+                // Show "View All" if more than 10 sessions
+                if sessions.count > 10 {
+                    Button(action: {
+                        showHistory = true
+                    }) {
+                        HStack {
+                            Text("View All \(sessions.count) Sessions")
+                                .font(.subheadline)
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                        }
+                        .foregroundStyle(.blue)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(10)
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Computed Properties
+    
+    private var totalFocusTime: TimeInterval {
+        sessions.reduce(0) { $0 + $1.actualDuration }
+    }
+    
+    private var completedSessionsCount: Int {
+        sessions.filter { $0.wasCompleted }.count
+    }
+    
+    private var completionPercentage: Int {
+        guard !sessions.isEmpty else { return 0 }
+        let completed = sessions.filter { $0.wasCompleted }.count
+        return Int((Double(completed) / Double(sessions.count)) * 100)
+    }
+    
+    private func formatTotalTime(_ time: TimeInterval) -> String {
+        let hours = Int(time) / 3600
+        let minutes = (Int(time) % 3600) / 60
+        
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else {
+            return "\(minutes)m"
+        }
+    }
+    
     // MARK: - Helper Methods
     
     private func checkAuthorizationStatus() {
@@ -90,58 +199,55 @@ struct FocusSessionView: View {
                     // Show active session view
                     ActiveSessionView(viewModel: viewModel)
                 } else {
-                    // Show start button
-                    VStack(spacing: 40) {
-                        Spacer()
-                        
-                        // App title/logo area
-                        VStack(spacing: 16) {
-                            Image(systemName: "brain.head.profile")
-                                .font(.system(size: 80))
-                                .foregroundStyle(.blue)
-                            
+                    // Show start button and history
+                    ScrollView {
+                        VStack(spacing: 24) {
+                            // App title
                             Text("Focus")
-                                .font(.system(size: 48, weight: .bold))
+                                .font(.system(size: 40, weight: .bold))
                                 .foregroundStyle(.primary)
-                        }
-                        
-                        Spacer()
-                        
-                        // Start button
-                        Button(action: {
-                            viewModel.startSession()
-                        }) {
-                            Text("Start Focus Session")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [.blue, .purple]),
-                                        startPoint: .leading,
-                                        endPoint: .trailing
+                                .padding(.top, 40)
+                            
+                            // Start button
+                            Button(action: {
+                                viewModel.startSession()
+                            }) {
+                                Text("Start Focus Session")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 16)
+                                    .background(
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [.blue, .purple]),
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
                                     )
-                                )
-                                .cornerRadius(12)
+                                    .cornerRadius(12)
+                            }
+                            .padding(.horizontal, 24)
+                            
+                            // Stats and sessions
+                            if !sessions.isEmpty {
+                                VStack(spacing: 20) {
+                                    // Stats cards
+                                    statsGrid
+                                    
+                                    // Recent sessions list
+                                    recentSessionsList
+                                }
+                                .padding(.horizontal, 24)
+                            }
+                            
+                            Spacer(minLength: 40)
                         }
-                        .padding(.horizontal, 40)
-                        .padding(.bottom, 60)
                     }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 if !viewModel.isSessionActive {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: {
-                            showHistory = true
-                        }) {
-                            Image(systemName: "clock.arrow.circlepath")
-                                .foregroundStyle(.blue)
-                        }
-                    }
-                    
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
                             showSettings = true
@@ -158,6 +264,92 @@ struct FocusSessionView: View {
             .sheet(isPresented: $showHistory) {
                 SessionHistoryView()
             }
+        }
+    }
+}
+
+// MARK: - StatBox Component
+
+struct StatBox: View {
+    let value: String
+    let label: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.title)
+                .foregroundStyle(color)
+            
+            Text(value)
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .foregroundStyle(.primary)
+            
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 20)
+        .background(color.opacity(0.1))
+        .cornerRadius(16)
+    }
+}
+
+// MARK: - CompactSessionRow Component
+
+struct CompactSessionRow: View {
+    let session: FocusSession
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Status icon
+            Image(systemName: session.wasCompleted ? "checkmark.circle.fill" : "xmark.circle.fill")
+                .foregroundStyle(session.wasCompleted ? .green : .orange)
+                .font(.title3)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                // Duration and status
+                HStack(spacing: 8) {
+                    Text(formatDuration(session.actualDuration))
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    
+                    Text("•")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    
+                    Text(session.wasCompleted ? "Completed" : "Ended Early")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                
+                // Date
+                Text(session.startTime, style: .relative)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Spacer()
+            
+            // Time
+            Text(session.startTime, style: .time)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+        .background(Color.gray.opacity(0.05))
+        .cornerRadius(10)
+    }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let minutes = Int(duration) / 60
+        let seconds = Int(duration) % 60
+        if minutes > 0 {
+            return "\(minutes)m \(seconds)s"
+        } else {
+            return "\(seconds)s"
         }
     }
 }
