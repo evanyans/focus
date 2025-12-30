@@ -110,7 +110,8 @@ struct FocusSessionView: View {
     private var recentSessionsList: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Recent Sessions")
-                .font(.headline)
+                .font(.system(size: 18, weight: .semibold, design: .serif))
+                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
                 .padding(.horizontal, 4)
             
             VStack(spacing: 8) {
@@ -126,14 +127,20 @@ struct FocusSessionView: View {
                         HStack {
                             Text("View All \(sessions.count) Sessions")
                                 .font(.subheadline)
+                                .fontWeight(.medium)
                             Image(systemName: "chevron.right")
                                 .font(.caption)
                         }
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(Color(red: 0.3, green: 0.25, blue: 0.2))
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.blue.opacity(0.1))
-                        .cornerRadius(10)
+                        .background(Color(red: 0.97, green: 0.96, blue: 0.93))
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1)
+                        )
+                        .shadow(color: Color.black.opacity(0.06), radius: 2, x: 1, y: 2)
                     }
                 }
             }
@@ -186,13 +193,15 @@ struct FocusSessionView: View {
     private var mainContent: some View {
         NavigationView {
             ZStack {
-                // Background gradient
-                LinearGradient(
-                    gradient: Gradient(colors: [.blue.opacity(0.1), .purple.opacity(0.1)]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+                // Paper background
+                Color(red: 0.99, green: 0.98, blue: 0.95) // Cream/off-white
+                    .ignoresSafeArea()
+                
+                // Subtle paper texture overlay
+                Color(red: 0.96, green: 0.95, blue: 0.92)
+                    .opacity(0.3)
+                    .ignoresSafeArea()
+                    .blendMode(.multiply)
                 
                 // Content
                 if viewModel.isSessionActive {
@@ -202,29 +211,28 @@ struct FocusSessionView: View {
                     // Show start button and history
                     ScrollView {
                         VStack(spacing: 24) {
-                            // App title
+                            // App title - handwritten style
                             Text("Focus")
-                                .font(.system(size: 40, weight: .bold))
-                                .foregroundStyle(.primary)
+                                .font(.system(size: 40, weight: .bold, design: .serif))
+                                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1)) // Dark brown
                                 .padding(.top, 40)
                             
-                            // Start button
+                            // Start button - paper style
                             Button(action: {
                                 viewModel.startSession()
                             }) {
                                 Text("Start Focus Session")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
+                                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                    .foregroundColor(Color(red: 0.95, green: 0.94, blue: 0.91))
                                     .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 16)
-                                    .background(
-                                        LinearGradient(
-                                            gradient: Gradient(colors: [.blue, .purple]),
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
+                                    .padding(.vertical, 18)
+                                    .background(Color(red: 0.3, green: 0.25, blue: 0.2)) // Warm dark brown
+                                    .cornerRadius(8)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color(red: 0.4, green: 0.35, blue: 0.3), lineWidth: 1)
                                     )
-                                    .cornerRadius(12)
+                                    .shadow(color: Color.black.opacity(0.15), radius: 4, x: 2, y: 3)
                             }
                             .padding(.horizontal, 24)
                             
@@ -265,6 +273,7 @@ struct FocusSessionView: View {
                 SessionHistoryView()
             }
         }
+        .preferredColorScheme(.light) // Force light mode for paper background
     }
 }
 
@@ -279,21 +288,38 @@ struct StatBox: View {
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.title)
-                .foregroundStyle(color)
+                .font(.title2)
+                .foregroundStyle(paperIconColor(for: color))
             
             Text(value)
                 .font(.system(size: 28, weight: .bold, design: .rounded))
-                .foregroundStyle(.primary)
+                .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
             
             Text(label)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .fontWeight(.medium)
+                .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)
-        .background(color.opacity(0.1))
-        .cornerRadius(16)
+        .background(Color(red: 0.97, green: 0.96, blue: 0.93)) // Slightly darker cream
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1.5)
+        )
+        .shadow(color: Color.black.opacity(0.08), radius: 3, x: 2, y: 2)
+    }
+    
+    private func paperIconColor(for color: Color) -> Color {
+        // Muted, earthy versions of colors
+        switch color {
+        case .blue: return Color(red: 0.4, green: 0.5, blue: 0.6)
+        case .green: return Color(red: 0.5, green: 0.6, blue: 0.45)
+        case .orange: return Color(red: 0.7, green: 0.5, blue: 0.3)
+        case .purple: return Color(red: 0.6, green: 0.45, blue: 0.6)
+        default: return Color(red: 0.4, green: 0.35, blue: 0.3)
+        }
     }
 }
 
@@ -304,9 +330,11 @@ struct CompactSessionRow: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            // Status icon
+            // Status icon - earthy colors
             Image(systemName: session.wasCompleted ? "checkmark.circle.fill" : "xmark.circle.fill")
-                .foregroundStyle(session.wasCompleted ? .green : .orange)
+                .foregroundStyle(session.wasCompleted ? 
+                    Color(red: 0.5, green: 0.6, blue: 0.45) : // Muted green
+                    Color(red: 0.7, green: 0.5, blue: 0.3))   // Muted orange
                 .font(.title3)
             
             VStack(alignment: .leading, spacing: 2) {
@@ -315,20 +343,21 @@ struct CompactSessionRow: View {
                     Text(formatDuration(session.actualDuration))
                         .font(.subheadline)
                         .fontWeight(.semibold)
+                        .foregroundStyle(Color(red: 0.2, green: 0.15, blue: 0.1))
                     
                     Text("•")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color(red: 0.5, green: 0.45, blue: 0.4))
                     
                     Text(session.wasCompleted ? "Completed" : "Ended Early")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
                 }
                 
                 // Static date
                 Text(formatDate(session.startTime))
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color(red: 0.5, green: 0.45, blue: 0.4))
             }
             
             Spacer()
@@ -336,11 +365,16 @@ struct CompactSessionRow: View {
             // Time
             Text(session.startTime, style: .time)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color(red: 0.4, green: 0.35, blue: 0.3))
         }
         .padding()
-        .background(Color.gray.opacity(0.05))
-        .cornerRadius(10)
+        .background(Color(red: 0.97, green: 0.96, blue: 0.93))
+        .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color(red: 0.85, green: 0.83, blue: 0.78), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.06), radius: 2, x: 1, y: 2)
     }
     
     private func formatDuration(_ duration: TimeInterval) -> String {

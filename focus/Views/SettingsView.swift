@@ -18,7 +18,12 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationView {
-            List {
+            ZStack {
+                // Paper background
+                Color(red: 0.99, green: 0.98, blue: 0.95)
+                    .ignoresSafeArea()
+                
+                List {
                 // Screen Time Status Section
                 Section {
                     HStack {
@@ -114,6 +119,8 @@ struct SettingsView: View {
                     Text("About")
                 }
             }
+                .scrollContentBackground(.hidden) // Hide default List background
+            }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -121,6 +128,7 @@ struct SettingsView: View {
                     Button("Done") {
                         dismiss()
                     }
+                    .foregroundColor(Color(red: 0.3, green: 0.25, blue: 0.2))
                 }
             }
             .sheet(isPresented: $showAppSelection) {
@@ -130,6 +138,7 @@ struct SettingsView: View {
                 ScreenTimeInstructionsView()
             }
         }
+        .preferredColorScheme(.light) // Force light mode for paper background
     }
 }
 
