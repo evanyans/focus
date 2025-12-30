@@ -97,7 +97,7 @@ struct FocusSessionView: View {
                 // Completion rate
                 StatBox(
                     value: "\(completionPercentage)%",
-                    label: "Rate",
+                    label: "Success Rate",
                     icon: "chart.line.uptrend.xyaxis",
                     color: .purple
                 )
