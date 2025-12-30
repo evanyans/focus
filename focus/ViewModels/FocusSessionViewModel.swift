@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import SwiftData
 
 /// ViewModel managing focus session state and business logic
 @MainActor
@@ -30,6 +31,9 @@ class FocusSessionViewModel: ObservableObject {
     private let notificationService = NotificationService.shared
     private let screenTimeService = ScreenTimeService.shared
     private let appSettings = AppSettings.shared
+    
+    // Model context for saving sessions
+    var modelContext: ModelContext?
     
     // MARK: - Public Methods
     
@@ -75,6 +79,13 @@ class FocusSessionViewModel: ObservableObject {
     /// End the current session manually
     func endSession() {
         timerService?.stop()
+        
+        // Mark session as ended early and save
+        if let session = currentSession {
+            session.complete(early: true)
+            saveSession(session)
+        }
+        
         currentSession = nil
         remainingTime = 0
         timerService = nil
@@ -92,6 +103,12 @@ class FocusSessionViewModel: ObservableObject {
     
     /// Handle session completion
     private func handleSessionComplete() {
+        // Mark session as completed successfully and save
+        if let session = currentSession {
+            session.complete(early: false)
+            saveSession(session)
+        }
+        
         currentSession = nil
         remainingTime = 0
         timerService = nil
@@ -100,7 +117,23 @@ class FocusSessionViewModel: ObservableObject {
         screenTimeService.removeBlocking()
         
         // Notification is already scheduled and will fire automatically
-        // TODO: Log session in Phase 4
+    }
+    
+    /// Save a completed session to SwiftData
+    private func saveSession(_ session: FocusSession) {
+        guard let modelContext = modelContext else {
+            print("⚠️ ModelContext not available, session not saved")
+            return
+        }
+        
+        modelContext.insert(session)
+        
+        do {
+            try modelContext.save()
+            print("💾 Session saved: \(session.actualDuration)s, completed: \(session.wasCompleted)")
+        } catch {
+            print("❌ Failed to save session: \(error)")
+        }
     }
     
     /// Format time interval as MM:SS

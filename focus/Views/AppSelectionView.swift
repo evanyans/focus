@@ -65,6 +65,21 @@ struct AppSelectionView: View {
                 
                 // Buttons
                 VStack(spacing: 12) {
+                    // Important note
+                    if !appSettings.hasSelectedApps {
+                        VStack(spacing: 8) {
+                            Image(systemName: "info.circle")
+                                .foregroundStyle(.blue)
+                            Text("After selecting apps, tap 'Done' in the picker before closing this screen")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding()
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(8)
+                    }
+                    
                     // Select apps button
                     Button(action: {
                         showPicker = true

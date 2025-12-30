@@ -24,6 +24,7 @@ class ScreenTimeService: ObservableObject {
     
     private init() {
         // Check initial authorization status
+        print("🚀 ScreenTimeService initialized")
         updateAuthorizationStatus()
     }
     
@@ -48,14 +49,22 @@ class ScreenTimeService: ObservableObject {
         }
     }
     
-    /// Check if currently authorized
+    /// Check if currently authorized and update published property
+    @discardableResult
     func checkAuthorization() -> Bool {
-        return authorizationCenter.authorizationStatus == .approved
+        let authorized = authorizationCenter.authorizationStatus == .approved
+        // Update published property if changed
+        if isAuthorized != authorized {
+            isAuthorized = authorized
+            print("🔐 Screen Time authorization CHANGED to: \(authorized ? "AUTHORIZED" : "NOT AUTHORIZED")")
+        }
+        return authorized
     }
     
     /// Update the published authorization status
     private func updateAuthorizationStatus() {
-        isAuthorized = checkAuthorization()
+        checkAuthorization()
+        print("🔐 Authorization status enum: \(authorizationCenter.authorizationStatus.rawValue)")
     }
     
     // MARK: - App Blocking

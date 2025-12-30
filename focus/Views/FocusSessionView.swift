@@ -10,11 +10,16 @@ import FamilyControls
 
 /// Main view for the focus app - shows start button or active session
 struct FocusSessionView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var viewModel = FocusSessionViewModel()
     @ObservedObject private var appState = AppState.shared
     @ObservedObject private var appSettings = AppSettings.shared
+    @ObservedObject private var screenTimeService = ScreenTimeService.shared
     
     @State private var showSettings = false
+    @State private var showHistory = false
+    @State private var showReauthorizationAlert = false
     
     var body: some View {
         Group {
@@ -27,6 +32,43 @@ struct FocusSessionView: View {
                 // Show main app
                 mainContent
             }
+        }
+        .onAppear {
+            // Inject modelContext into ViewModel
+            viewModel.modelContext = modelContext
+            
+            // Check Screen Time authorization status on launch
+            checkAuthorizationStatus()
+        }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            // Re-check authorization when app comes to foreground
+            if newPhase == .active {
+                checkAuthorizationStatus()
+            }
+        }
+        .alert("Permission Lost", isPresented: $showReauthorizationAlert) {
+            Button("Re-authorize") {
+                Task {
+                    try? await screenTimeService.requestAuthorization()
+                }
+            }
+            Button("Later", role: .cancel) {}
+        } message: {
+            Text("Screen Time access was revoked. This can happen if you force-quit the app while selecting apps. Please re-authorize to enable app blocking.")
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func checkAuthorizationStatus() {
+        let wasAuthorized = screenTimeService.isAuthorized
+        let isAuthorized = screenTimeService.checkAuthorization()
+        
+        print("📱 Authorization check - Was: \(wasAuthorized), Is: \(isAuthorized)")
+        
+        // If we had authorization before but lost it, show alert
+        if wasAuthorized && !isAuthorized && appSettings.hasSelectedApps {
+            showReauthorizationAlert = true
         }
     }
     
@@ -91,6 +133,15 @@ struct FocusSessionView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 if !viewModel.isSessionActive {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: {
+                            showHistory = true
+                        }) {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .foregroundStyle(.blue)
+                        }
+                    }
+                    
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
                             showSettings = true
@@ -103,6 +154,9 @@ struct FocusSessionView: View {
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
+            }
+            .sheet(isPresented: $showHistory) {
+                SessionHistoryView()
             }
         }
     }
