@@ -151,3 +151,9 @@ IDEWorkspaceChecks.plist
 !*.playground/contents.xcplayground
 !*.playground/Resources/
 !*.playground/Sources/
+
+## Documentation files (generated during development)
+ARCHITECTURE_OVERVIEW.md
+FINAL_VERIFICATION.md
+REFACTOR_GUIDE.md
+SETUP_CHECKLIST.md

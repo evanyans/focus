@@ -198,7 +198,7 @@ struct ScheduleEditorView: View {
                     Button("Save") {
                         saveSchedule()
                     }
-                    .foregroundColor(PaperTheme.buttonPrimary)
+                    .foregroundColor(PaperTheme.accentBlue)
                     .disabled(scheduleName.isEmpty || selectedDays.isEmpty)
                 }
             }
