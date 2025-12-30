@@ -325,8 +325,8 @@ struct CompactSessionRow: View {
                         .foregroundStyle(.secondary)
                 }
                 
-                // Date
-                Text(session.startTime, style: .relative)
+                // Static date
+                Text(formatDate(session.startTime))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -350,6 +350,20 @@ struct CompactSessionRow: View {
             return "\(minutes)m \(seconds)s"
         } else {
             return "\(seconds)s"
+        }
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let calendar = Calendar.current
+        
+        if calendar.isDateInToday(date) {
+            return "Today"
+        } else if calendar.isDateInYesterday(date) {
+            return "Yesterday"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMM d"
+            return formatter.string(from: date)
         }
     }
 }
