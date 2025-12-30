@@ -21,8 +21,16 @@ class AppSettings: ObservableObject {
         }
     }
     
+    /// Default session duration in seconds
+    @Published var defaultDuration: TimeInterval {
+        didSet {
+            UserDefaults.standard.set(defaultDuration, forKey: durationKey)
+        }
+    }
+    
     /// Key for UserDefaults storage
     private let selectionKey = "focus.app.selection"
+    private let durationKey = "focus.default.duration"
     
     private init() {
         // Load saved selection or create empty one
@@ -32,6 +40,10 @@ class AppSettings: ObservableObject {
         } else {
             self.selectedApps = FamilyActivitySelection()
         }
+        
+        // Load default duration (default to 25 minutes = 1500 seconds)
+        let savedDuration = UserDefaults.standard.double(forKey: durationKey)
+        self.defaultDuration = savedDuration > 0 ? savedDuration : 1500
     }
     
     /// Check if user has selected any apps

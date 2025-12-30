@@ -113,6 +113,11 @@ struct PaperTheme {
     static var buttonSecondary: Color {
         cardBackground
     }
+    
+    /// Secondary button text
+    static var buttonSecondaryText: Color {
+        textPrimary
+    }
 }
 
 // MARK: - Color Extension for Dynamic Colors

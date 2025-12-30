@@ -173,9 +173,44 @@ struct ScreenTimeInstructionsView: View {
                             .foregroundStyle(PaperTheme.textPrimary)
                         
                         VStack(spacing: 12) {
-                            InstructionStep(number: 1, text: "Tap 'Request Permission' below")
-                            InstructionStep(number: 2, text: "iOS will show a system dialog")
-                            InstructionStep(number: 3, text: "Tap 'Continue' to grant access")
+                            HStack(spacing: 12) {
+                                Text("1")
+                                    .font(.headline.bold())
+                                    .foregroundColor(PaperTheme.accentBlue)
+                                    .frame(width: 32, height: 32)
+                                    .background(PaperTheme.accentBlue.opacity(0.1))
+                                    .clipShape(Circle())
+                                Text("Tap 'Request Permission' below")
+                                    .font(.subheadline)
+                                    .foregroundColor(PaperTheme.textPrimary)
+                                Spacer()
+                            }
+                            
+                            HStack(spacing: 12) {
+                                Text("2")
+                                    .font(.headline.bold())
+                                    .foregroundColor(PaperTheme.accentBlue)
+                                    .frame(width: 32, height: 32)
+                                    .background(PaperTheme.accentBlue.opacity(0.1))
+                                    .clipShape(Circle())
+                                Text("iOS will show a system dialog")
+                                    .font(.subheadline)
+                                    .foregroundColor(PaperTheme.textPrimary)
+                                Spacer()
+                            }
+                            
+                            HStack(spacing: 12) {
+                                Text("3")
+                                    .font(.headline.bold())
+                                    .foregroundColor(PaperTheme.accentBlue)
+                                    .frame(width: 32, height: 32)
+                                    .background(PaperTheme.accentBlue.opacity(0.1))
+                                    .clipShape(Circle())
+                                Text("Tap 'Continue' to grant access")
+                                    .font(.subheadline)
+                                    .foregroundColor(PaperTheme.textPrimary)
+                                Spacer()
+                            }
                         }
                     }
                     .padding()

@@ -12,7 +12,10 @@ import SwiftData
 struct focusApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            FocusSession.self,
+            BlockingSchedule.self,
+            UsageAttempt.self,
+            OverrideSession.self,
+            FocusSession.self,  // Keep for migration purposes
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -25,7 +28,7 @@ struct focusApp: App {
 
     var body: some Scene {
         WindowGroup {
-            FocusSessionView()
+            MainAppView()
         }
         .modelContainer(sharedModelContainer)
     }

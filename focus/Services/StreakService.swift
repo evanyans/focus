@@ -1,0 +1,77 @@
+//
+//  StreakService.swift
+//  focus
+//
+//  Created on 2025-12-29.
+//
+
+import Foundation
+import SwiftData
+
+/// Service for calculating and tracking streaks (days without using overrides)
+class StreakService {
+    
+    /// Calculate current streak (consecutive days without overrides)
+    /// Streak breaks if user uses an override on any day
+    static func calculateStreak(overrideSessions: [OverrideSession]) -> Int {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        // Group overrides by day
+        var overridesByDay: Set<Date> = Set()
+        for override in overrideSessions where override.wasUsed {
+            let day = calendar.startOfDay(for: override.startTime)
+            overridesByDay.insert(day)
+        }
+        
+        var streak = 0
+        var currentDay = today
+        
+        // Count consecutive days without overrides
+        while !overridesByDay.contains(currentDay) {
+            streak += 1
+            guard let previousDay = calendar.date(byAdding: .day, value: -1, to: currentDay) else {
+                break
+            }
+            currentDay = previousDay
+            
+            // Limit to reasonable timeframe (e.g., 365 days)
+            if streak >= 365 {
+                break
+            }
+        }
+        
+        return streak
+    }
+    
+    /// Get streak message based on current streak
+    static func streakMessage(for streak: Int) -> String {
+        switch streak {
+        case 0:
+            return "Start fresh today! 🚀"
+        case 1:
+            return "Great start! Keep going 💪"
+        case 2...6:
+            return "Building momentum! 🔥"
+        case 7...13:
+            return "One week strong! 🎯"
+        case 14...29:
+            return "Two weeks! You're unstoppable! ⚡"
+        case 30...59:
+            return "A full month! Legendary! 👑"
+        default:
+            return "Focus master! \(streak) days! 🏆"
+        }
+    }
+    
+    /// Check if user used an override today
+    static func usedOverrideToday(overrideSessions: [OverrideSession]) -> Bool {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        return overrideSessions.contains { override in
+            calendar.isDate(override.startTime, inSameDayAs: today) && override.wasUsed
+        }
+    }
+}
+
