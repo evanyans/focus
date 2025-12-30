@@ -302,7 +302,7 @@ struct FocusSessionView: View {
                                 .foregroundStyle(PaperTheme.textPrimary)
                                 .padding(.top, 40)
                             
-                            // Start button - paper style
+                            // Start button - calming blue for focus
                             Button(action: {
                                 viewModel.startSession()
                             }) {
@@ -311,7 +311,7 @@ struct FocusSessionView: View {
                                     .foregroundColor(PaperTheme.buttonPrimaryText)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 18)
-                                    .background(PaperTheme.buttonPrimary)
+                                    .background(PaperTheme.accentBlue)
                                     .cornerRadius(8)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 8)
