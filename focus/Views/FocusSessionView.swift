@@ -147,6 +147,63 @@ struct FocusSessionView: View {
         }
     }
     
+    // MARK: - Blocked Apps Card
+    
+    private var blockedAppsCard: some View {
+        Button(action: {
+            showSettings = true
+        }) {
+            HStack(spacing: 16) {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(PaperTheme.accentRed.opacity(0.15))
+                        .frame(width: 50, height: 50)
+                    
+                    Image(systemName: "hand.raised.fill")
+                        .font(.title2)
+                        .foregroundStyle(PaperTheme.accentRed)
+                }
+                
+                // Content
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 8) {
+                        Text("Blocked Apps")
+                            .font(.headline)
+                            .foregroundStyle(PaperTheme.textPrimary)
+                        
+                        if appSettings.hasSelectedApps {
+                            Text("(\(appSettings.selectedApps.applicationTokens.count))")
+                                .font(.subheadline)
+                                .foregroundStyle(PaperTheme.textSecondary)
+                        }
+                    }
+                    
+                    Text(appSettings.hasSelectedApps ? 
+                         "Tap to manage blocked apps" : 
+                         "No apps selected • Tap to select")
+                        .font(.subheadline)
+                        .foregroundStyle(PaperTheme.textSecondary)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(PaperTheme.textTertiary)
+            }
+            .padding()
+            .background(PaperTheme.cardBackground)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(PaperTheme.border, lineWidth: 1.5)
+            )
+            .shadow(color: PaperTheme.shadow, radius: 3, x: 2, y: 2)
+        }
+        .buttonStyle(.plain)
+    }
+    
     // MARK: - Empty State
     
     private var emptyStateView: some View {
@@ -264,6 +321,10 @@ struct FocusSessionView: View {
                             }
                             .padding(.horizontal, 24)
                             
+                            // Blocked Apps Card
+                            blockedAppsCard
+                                .padding(.horizontal, 24)
+                            
                             // Stats and sessions - always show
                             VStack(spacing: 20) {
                                 // Stats cards
@@ -284,18 +345,6 @@ struct FocusSessionView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                if !viewModel.isSessionActive {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {
-                            showSettings = true
-                        }) {
-                            Image(systemName: "gearshape")
-                                .foregroundStyle(.blue)
-                        }
-                    }
-                }
-            }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
             }
