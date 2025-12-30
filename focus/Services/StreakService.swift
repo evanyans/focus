@@ -17,25 +17,48 @@ class StreakService {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         
-        // Group overrides by day
+        // If no override sessions exist yet, return 0 (new user)
+        if overrideSessions.isEmpty {
+            return 0
+        }
+        
+        // Group overrides by day where they were actually used
         var overridesByDay: Set<Date> = Set()
-        for override in overrideSessions where override.wasUsed {
+        var earliestDate: Date? = nil
+        
+        for override in overrideSessions {
             let day = calendar.startOfDay(for: override.startTime)
-            overridesByDay.insert(day)
+            
+            // Track earliest date to limit streak counting
+            if earliestDate == nil || day < earliestDate! {
+                earliestDate = day
+            }
+            
+            // Only count as breaking streak if override was used
+            if override.wasUsed {
+                overridesByDay.insert(day)
+            }
+        }
+        
+        // Check if user used override today - streak should be 0
+        if overridesByDay.contains(today) {
+            return 0
         }
         
         var streak = 0
         var currentDay = today
         
-        // Count consecutive days without overrides
-        while !overridesByDay.contains(currentDay) {
+        // Count consecutive days without overrides, but only back to earliest session
+        let limitDate = earliestDate ?? today
+        
+        while currentDay >= limitDate && !overridesByDay.contains(currentDay) {
             streak += 1
             guard let previousDay = calendar.date(byAdding: .day, value: -1, to: currentDay) else {
                 break
             }
             currentDay = previousDay
             
-            // Limit to reasonable timeframe (e.g., 365 days)
+            // Safety limit
             if streak >= 365 {
                 break
             }
