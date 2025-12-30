@@ -23,6 +23,7 @@ struct HomeView: View {
     @State private var showScheduleEditor = false
     @State private var showSettings = false
     @State private var showChallengeView = false
+    @State private var showStreakDetail = false
     @State private var currentTime = Date()  // For real-time countdown updates
     @State private var dailyQuote = ""  // Daily motivational quote
     
@@ -36,7 +37,7 @@ struct HomeView: View {
                 
                 ScrollView {
                     VStack(spacing: 20) {
-                        // Blocking Status Card
+                        // Blocking Status Card (with streak indicator)
                         blockingStatusCard
                         
                         // Daily Quote Card
@@ -44,9 +45,6 @@ struct HomeView: View {
                         
                         // Blocked Apps Card
                         blockedAppsCard
-                        
-                        // Streak Card
-                        streakCard
                         
                         // Today's Stats (Overrides)
                         todayStatsCard
@@ -77,6 +75,9 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showChallengeView) {
                 ChallengeView()
+            }
+            .sheet(isPresented: $showStreakDetail) {
+                StreakDetailView(overrideSessions: overrideSessions)
             }
             .onAppear {
                 scheduleService.setModelContext(modelContext)
