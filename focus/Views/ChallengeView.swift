@@ -135,15 +135,32 @@ struct ChallengeView: View {
         
         if userAnswer == correctAnswer {
             // Correct! Create override session
-            let override = OverrideSession(durationMinutes: 5, challengeType: "math")
+            let durationMinutes = 5
+            let override = OverrideSession(durationMinutes: durationMinutes, challengeType: "math")
+            override.wasUsed = true  // Mark as used immediately (user will access apps)
             modelContext.insert(override)
+            
+            // Log the override usage attempt
+            let usageAttempt = UsageAttempt(
+                appName: "Override Used",
+                wasBlocked: false,
+                overrideMethod: "challenge"
+            )
+            modelContext.insert(usageAttempt)
             
             do {
                 try modelContext.save()
-                print("✅ Challenge completed! Override granted for 5 minutes")
+                print("✅ Challenge completed! Override granted for \(durationMinutes) minutes")
+                print("📊 Logged override usage attempt")
                 
                 // Remove blocking temporarily
                 ScreenTimeService.shared.removeBlocking()
+                
+                // Schedule notification before override expires (warn 1 minute before)
+                let expiresIn = TimeInterval(durationMinutes * 60)
+                Task {
+                    await NotificationService.shared.scheduleOverrideExpiringNotification(expiresIn: expiresIn)
+                }
                 
                 // Show success and dismiss
                 dismiss()

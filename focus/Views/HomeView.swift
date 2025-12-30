@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import FamilyControls
+import Combine
 
 /// Main home screen showing blocking status and usage stats
 struct HomeView: View {
@@ -22,6 +23,10 @@ struct HomeView: View {
     @State private var showScheduleEditor = false
     @State private var showSettings = false
     @State private var showChallengeView = false
+    @State private var currentTime = Date()  // For real-time countdown updates
+    
+    // Timer that fires every second for countdown
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     var body: some View {
         NavigationStack {
@@ -71,6 +76,12 @@ struct HomeView: View {
             }
             .onAppear {
                 scheduleService.setModelContext(modelContext)
+                // Force immediate check when view appears
+                scheduleService.checkSchedules()
+            }
+            .onReceive(timer) { time in
+                // Update current time every second for countdown
+                currentTime = time
             }
         }
     }
@@ -101,9 +112,24 @@ struct HomeView: View {
                         .font(.subheadline)
                         .foregroundColor(PaperTheme.textSecondary)
                     
-                    Text("Until \(schedule.timeRangeString().split(separator: "-").last ?? "")")
-                        .font(.caption)
-                        .foregroundColor(PaperTheme.textTertiary)
+                    // Show override status if active
+                    if scheduleService.isOverrideActive, let override = scheduleService.activeOverride {
+                        HStack(spacing: 4) {
+                            Image(systemName: "clock.fill")
+                                .font(.caption)
+                            Text("Override: \(timeRemaining(until: override.endTime))")
+                                .font(.caption)
+                        }
+                        .foregroundColor(PaperTheme.accentOrange)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 4)
+                        .background(PaperTheme.accentOrange.opacity(0.1))
+                        .cornerRadius(12)
+                    } else {
+                        Text("Until \(schedule.timeRangeString().split(separator: "-").last ?? "")")
+                            .font(.caption)
+                            .foregroundColor(PaperTheme.textTertiary)
+                    }
                 } else if let nextChange = scheduleService.nextScheduleChange {
                     Text("Next: \(formatTime(nextChange))")
                         .font(.subheadline)
@@ -115,34 +141,19 @@ struct HomeView: View {
                 }
             }
             
-            // Override Button (only show when blocking is active)
-            if scheduleService.isBlockingActive {
-                if let activeOverride = scheduleService.getActiveOverride() {
-                    // Show remaining override time
+            // Override Button (only show when blocking is active and no override)
+            if scheduleService.isBlockingActive && !scheduleService.isOverrideActive {
+                Button(action: { showChallengeView = true }) {
                     HStack(spacing: 8) {
-                        Image(systemName: "clock.fill")
-                            .foregroundColor(PaperTheme.accentOrange)
-                        Text("Override active: \(formatSeconds(Int(activeOverride.remainingSeconds)))")
-                            .font(.subheadline.bold())
-                            .foregroundColor(PaperTheme.accentOrange)
+                        Image(systemName: "brain.head.profile")
+                        Text("Solve Challenge to Unlock")
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(PaperTheme.accentOrange.opacity(0.1))
-                    .cornerRadius(8)
-                } else {
-                    Button(action: { showChallengeView = true }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "brain.head.profile")
-                            Text("Solve Challenge to Unlock")
-                        }
-                        .font(.subheadline.bold())
-                        .foregroundColor(PaperTheme.buttonPrimaryText)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .background(PaperTheme.buttonPrimary)
-                        .cornerRadius(10)
-                    }
+                    .font(.subheadline.bold())
+                    .foregroundColor(PaperTheme.buttonPrimaryText)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .background(PaperTheme.buttonPrimary)
+                    .cornerRadius(10)
                 }
             }
         }
@@ -368,6 +379,17 @@ struct HomeView: View {
         let formatter = DateFormatter()
         formatter.timeStyle = .short
         return formatter.string(from: date)
+    }
+    
+    private func timeRemaining(until date: Date) -> String {
+        // Use currentTime to ensure UI updates every second
+        let remaining = date.timeIntervalSince(currentTime)
+        if remaining <= 0 {
+            return "Expired"
+        }
+        let minutes = Int(remaining) / 60
+        let seconds = Int(remaining) % 60
+        return String(format: "%d:%02d", minutes, seconds)
     }
     
     private func formatSeconds(_ seconds: Int) -> String {

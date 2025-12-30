@@ -17,10 +17,13 @@ class ScheduleService: ObservableObject {
     @Published var isBlockingActive: Bool = false
     @Published var activeSchedule: BlockingSchedule?
     @Published var nextScheduleChange: Date?
+    @Published var isOverrideActive: Bool = false  // NEW: Track override state
+    @Published var activeOverride: OverrideSession? = nil  // NEW: Current override
     
     private var modelContext: ModelContext?
     private var timer: Timer?
     private var cancellables = Set<AnyCancellable>()
+    private var wasOverrideActive: Bool = false  // Track if override was active last check
     
     private init() {
         // Start monitoring schedule changes
@@ -34,8 +37,8 @@ class ScheduleService: ObservableObject {
     
     /// Start monitoring for schedule changes
     private func startMonitoring() {
-        // Check every minute for schedule changes
-        timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
+        // Check every 15 seconds for schedule changes and override expirations
+        timer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 self?.checkSchedules()
             }
@@ -47,6 +50,21 @@ class ScheduleService: ObservableObject {
     /// Check all schedules and update blocking state
     func checkSchedules() {
         guard let context = modelContext else { return }
+        
+        // Check if there's an active override session
+        let currentOverride = getActiveOverride()
+        let isCurrentlyOverridden = currentOverride != nil
+        
+        // Check if override just expired (was active, now isn't)
+        let overrideJustExpired = wasOverrideActive && !isCurrentlyOverridden
+        if overrideJustExpired {
+            print("⏱️ Override expired - re-checking schedules")
+        }
+        
+        // Update override state
+        self.isOverrideActive = isCurrentlyOverridden
+        self.activeOverride = currentOverride
+        wasOverrideActive = isCurrentlyOverridden
         
         let descriptor = FetchDescriptor<BlockingSchedule>(
             predicate: #Predicate<BlockingSchedule> { $0.isEnabled == true },
@@ -60,17 +78,31 @@ class ScheduleService: ObservableObject {
             let activeSchedules = schedules.filter { $0.isActiveNow() }
             
             if let firstActive = activeSchedules.first {
+                // Schedule is active
                 isBlockingActive = true
                 activeSchedule = firstActive
-                print("🔒 Blocking active: \(firstActive.name)")
                 
-                // Apply blocking with selected apps
-                let selectedApps = AppSettings.shared.selectedApps
-                ScreenTimeService.shared.applyBlocking(for: selectedApps)
+                if isCurrentlyOverridden {
+                    // Schedule active BUT override in effect
+                    print("⏸️ Schedule active but overridden: \(firstActive.name)")
+                    // Remove blocking during override
+                    ScreenTimeService.shared.removeBlocking()
+                } else {
+                    // Schedule active, no override
+                    if overrideJustExpired {
+                        print("🔄 Re-applying blocking after override: \(firstActive.name)")
+                    } else {
+                        print("🔒 Blocking active: \(firstActive.name)")
+                    }
+                    // Apply blocking with selected apps
+                    let selectedApps = AppSettings.shared.selectedApps
+                    ScreenTimeService.shared.applyBlocking(for: selectedApps)
+                }
             } else {
+                // No active schedule
                 isBlockingActive = false
                 activeSchedule = nil
-                print("🔓 Blocking inactive")
+                print("🔓 No active schedule")
                 
                 // Remove blocking
                 ScreenTimeService.shared.removeBlocking()
