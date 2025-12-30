@@ -96,79 +96,97 @@ struct HomeView: View {
     // MARK: - Blocking Status Card
     
     private var blockingStatusCard: some View {
-        VStack(spacing: 16) {
-            // Status Icon
-            ZStack {
-                Circle()
-                    .fill(scheduleService.isBlockingActive ? PaperTheme.accentRed.opacity(0.2) : PaperTheme.accentGreen.opacity(0.2))
-                    .frame(width: 80, height: 80)
-                
-                Image(systemName: scheduleService.isBlockingActive ? "shield.fill" : "shield.slash.fill")
-                    .font(.system(size: 40))
-                    .foregroundColor(scheduleService.isBlockingActive ? PaperTheme.accentRed : PaperTheme.accentGreen)
-            }
-            
-            // Status Text
-            VStack(spacing: 4) {
-                Text(scheduleService.isBlockingActive ? "Blocking Active" : "Blocking Inactive")
-                    .font(.title2.bold())
-                    .foregroundColor(PaperTheme.textPrimary)
-                
-                if let schedule = scheduleService.activeSchedule {
-                    Text(schedule.name)
-                        .font(.subheadline)
-                        .foregroundColor(PaperTheme.textSecondary)
+        ZStack(alignment: .topTrailing) {
+            VStack(spacing: 16) {
+                // Status Icon
+                ZStack {
+                    Circle()
+                        .fill(scheduleService.isBlockingActive ? PaperTheme.accentRed.opacity(0.2) : PaperTheme.accentGreen.opacity(0.2))
+                        .frame(width: 80, height: 80)
                     
-                    // Show override status if active
-                    if scheduleService.isOverrideActive, let override = scheduleService.activeOverride {
-                        HStack(spacing: 4) {
-                            Image(systemName: "clock.fill")
+                    Image(systemName: scheduleService.isBlockingActive ? "shield.fill" : "shield.slash.fill")
+                        .font(.system(size: 40))
+                        .foregroundColor(scheduleService.isBlockingActive ? PaperTheme.accentRed : PaperTheme.accentGreen)
+                }
+                
+                // Status Text
+                VStack(spacing: 4) {
+                    Text(scheduleService.isBlockingActive ? "Blocking Active" : "Blocking Inactive")
+                        .font(.title2.bold())
+                        .foregroundColor(PaperTheme.textPrimary)
+                    
+                    if let schedule = scheduleService.activeSchedule {
+                        Text(schedule.name)
+                            .font(.subheadline)
+                            .foregroundColor(PaperTheme.textSecondary)
+                        
+                        // Show override status if active
+                        if scheduleService.isOverrideActive, let override = scheduleService.activeOverride {
+                            HStack(spacing: 4) {
+                                Image(systemName: "clock.fill")
+                                    .font(.caption)
+                                Text("Override: \(timeRemaining(until: override.endTime))")
+                                    .font(.caption)
+                            }
+                            .foregroundColor(PaperTheme.accentOrange)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 4)
+                            .background(PaperTheme.accentOrange.opacity(0.1))
+                            .cornerRadius(12)
+                        } else {
+                            Text("Until \(schedule.timeRangeString().split(separator: "-").last ?? "")")
                                 .font(.caption)
-                            Text("Override: \(timeRemaining(until: override.endTime))")
-                                .font(.caption)
+                                .foregroundColor(PaperTheme.textTertiary)
                         }
-                        .foregroundColor(PaperTheme.accentOrange)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 4)
-                        .background(PaperTheme.accentOrange.opacity(0.1))
-                        .cornerRadius(12)
+                    } else if let nextChange = scheduleService.nextScheduleChange {
+                        Text("Next: \(formatTime(nextChange))")
+                            .font(.subheadline)
+                            .foregroundColor(PaperTheme.textSecondary)
                     } else {
-                        Text("Until \(schedule.timeRangeString().split(separator: "-").last ?? "")")
-                            .font(.caption)
-                            .foregroundColor(PaperTheme.textTertiary)
+                        Text("No active schedules")
+                            .font(.subheadline)
+                            .foregroundColor(PaperTheme.textSecondary)
                     }
-                } else if let nextChange = scheduleService.nextScheduleChange {
-                    Text("Next: \(formatTime(nextChange))")
-                        .font(.subheadline)
-                        .foregroundColor(PaperTheme.textSecondary)
-                } else {
-                    Text("No active schedules")
-                        .font(.subheadline)
-                        .foregroundColor(PaperTheme.textSecondary)
+                }
+                
+                // Override Button (only show when blocking is active and no override)
+                if scheduleService.isBlockingActive && !scheduleService.isOverrideActive {
+                    Button(action: { showChallengeView = true }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "brain.head.profile")
+                            Text("Solve Challenge to Unlock")
+                        }
+                        .font(.subheadline.bold())
+                        .foregroundColor(PaperTheme.buttonPrimaryText)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(PaperTheme.buttonPrimary)
+                        .cornerRadius(10)
+                    }
                 }
             }
+            .frame(maxWidth: .infinity)
+            .padding(24)
+            .background(PaperTheme.cardBackground)
+            .cornerRadius(16)
+            .shadow(color: PaperTheme.shadow, radius: 8, x: 0, y: 2)
             
-            // Override Button (only show when blocking is active and no override)
-            if scheduleService.isBlockingActive && !scheduleService.isOverrideActive {
-                Button(action: { showChallengeView = true }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "brain.head.profile")
-                        Text("Solve Challenge to Unlock")
-                    }
-                    .font(.subheadline.bold())
-                    .foregroundColor(PaperTheme.buttonPrimaryText)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .background(PaperTheme.buttonPrimary)
-                    .cornerRadius(10)
+            // Streak Indicator (top-right corner)
+            Button(action: { showStreakDetail = true }) {
+                HStack(spacing: 4) {
+                    Text("🔥")
+                        .font(.system(size: 18))
+                    Text("\(StreakService.calculateStreak(overrideSessions: overrideSessions))")
+                        .font(.subheadline.bold())
+                        .foregroundColor(PaperTheme.textPrimary)
                 }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(PaperTheme.accentOrange.opacity(0.15))
+                .cornerRadius(20)
             }
+            .padding(12)
         }
-        .frame(maxWidth: .infinity)
-        .padding(24)
-        .background(PaperTheme.cardBackground)
-        .cornerRadius(16)
-        .shadow(color: PaperTheme.shadow, radius: 8, x: 0, y: 2)
     }
     
     // MARK: - Quote Card
@@ -237,33 +255,6 @@ struct HomeView: View {
             .cornerRadius(12)
             .shadow(color: PaperTheme.shadow, radius: 8, x: 0, y: 2)
         }
-    }
-    
-    // MARK: - Streak Card
-    
-    private var streakCard: some View {
-        let streak = StreakService.calculateStreak(overrideSessions: overrideSessions)
-        
-        return HStack(spacing: 16) {
-            Text("🔥")
-                .font(.system(size: 40))
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("\(streak) Day Streak")
-                    .font(.title3.bold())
-                    .foregroundColor(PaperTheme.textPrimary)
-                
-                Text(StreakService.streakMessage(for: streak))
-                    .font(.caption)
-                    .foregroundColor(PaperTheme.textSecondary)
-            }
-            
-            Spacer()
-        }
-        .padding(20)
-        .background(PaperTheme.cardBackground)
-        .cornerRadius(12)
-        .shadow(color: PaperTheme.shadow, radius: 8, x: 0, y: 2)
     }
     
     // MARK: - Today's Stats
@@ -622,6 +613,200 @@ struct ScheduleRow: View {
         .padding(12)
         .background(PaperTheme.background)
         .cornerRadius(8)
+    }
+}
+
+// MARK: - Streak Detail View
+
+struct StreakDetailView: View {
+    let overrideSessions: [OverrideSession]
+    @Environment(\.dismiss) private var dismiss
+    
+    private var currentStreak: Int {
+        StreakService.calculateStreak(overrideSessions: overrideSessions)
+    }
+    
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                PaperTheme.background.ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 24) {
+                        streakHeader
+                        streakExplanation
+                        overrideHistorySection
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("Streak History")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundColor(PaperTheme.accentBlue)
+                }
+            }
+        }
+    }
+    
+    private var streakHeader: some View {
+        VStack(spacing: 8) {
+            Text("🔥")
+                .font(.system(size: 60))
+            
+            Text("\(currentStreak) Day Streak")
+                .font(.title.bold())
+                .foregroundColor(PaperTheme.textPrimary)
+            
+            Text(StreakService.streakMessage(for: currentStreak))
+                .font(.subheadline)
+                .foregroundColor(PaperTheme.textSecondary)
+        }
+        .padding(.vertical, 20)
+    }
+    
+    private var streakExplanation: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("How Streaks Work")
+                .font(.headline)
+                .foregroundColor(PaperTheme.textPrimary)
+            
+            Text("Your streak counts consecutive days without using overrides. Each time you use a challenge or watch an ad to unlock apps, your streak resets to zero.")
+                .font(.subheadline)
+                .foregroundColor(PaperTheme.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(PaperTheme.cardBackground)
+        .cornerRadius(12)
+    }
+    
+    private var overrideHistorySection: some View {
+        Group {
+            if !overrideSessions.isEmpty {
+                overrideList
+            } else {
+                emptyState
+            }
+        }
+    }
+    
+    private var overrideList: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Recent Overrides")
+                .font(.headline)
+                .foregroundColor(PaperTheme.textPrimary)
+            
+            ForEach(overrideSessions.prefix(20), id: \.id) { session in
+                OverrideRow(session: session, isStreakBreaker: isStreakBreaker(session))
+            }
+        }
+    }
+    
+    private var emptyState: some View {
+        VStack(spacing: 12) {
+            Text("🎯")
+                .font(.system(size: 50))
+            
+            Text("No Overrides Yet")
+                .font(.headline)
+                .foregroundColor(PaperTheme.textPrimary)
+            
+            Text("You haven't used any overrides. Keep it up!")
+                .font(.subheadline)
+                .foregroundColor(PaperTheme.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(.vertical, 40)
+    }
+    
+    private func isStreakBreaker(_ session: OverrideSession) -> Bool {
+        let calendar = Calendar.current
+        let sessionDay = calendar.startOfDay(for: session.startTime)
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: Date()) ?? Date()
+        let yesterdayStart = calendar.startOfDay(for: yesterday)
+        
+        // Show broken heart if this override happened yesterday or today
+        return sessionDay >= yesterdayStart
+    }
+}
+
+// MARK: - Override Row
+
+struct OverrideRow: View {
+    let session: OverrideSession
+    let isStreakBreaker: Bool
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            iconView
+            infoView
+            Spacer()
+            if isStreakBreaker {
+                Text("💔")
+                    .font(.title3)
+            }
+        }
+        .padding(12)
+        .background(PaperTheme.cardBackground)
+        .cornerRadius(10)
+    }
+    
+    private var iconView: some View {
+        Image(systemName: session.challengeType == "math" ? "brain.head.profile" : "play.rectangle.fill")
+            .font(.title3)
+            .foregroundColor(session.challengeType == "math" ? PaperTheme.accentBlue : PaperTheme.accentPurple)
+            .frame(width: 40)
+    }
+    
+    private var infoView: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(formatDate(session.startTime))
+                .font(.subheadline.bold())
+                .foregroundColor(PaperTheme.textPrimary)
+            
+            detailsRow
+        }
+    }
+    
+    private var detailsRow: some View {
+        HStack(spacing: 8) {
+            Text(formatTime(session.startTime))
+                .font(.caption)
+                .foregroundColor(PaperTheme.textSecondary)
+            
+            Text("•")
+                .foregroundColor(PaperTheme.textTertiary)
+            
+            Text("\(session.durationMinutes) min")
+                .font(.caption)
+                .foregroundColor(PaperTheme.textSecondary)
+            
+            Text("•")
+                .foregroundColor(PaperTheme.textTertiary)
+            
+            Text(session.challengeType == "math" ? "Challenge" : "Ad")
+                .font(.caption)
+                .foregroundColor(PaperTheme.textTertiary)
+        }
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+    
+    private func formatTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
     }
 }
 

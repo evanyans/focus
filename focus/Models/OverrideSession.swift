@@ -36,6 +36,12 @@ final class OverrideSession {
         return max(0, endTime.timeIntervalSinceNow)
     }
     
+    /// Get the duration in minutes (calculated from start and end time)
+    var durationMinutes: Int {
+        let duration = endTime.timeIntervalSince(startTime)
+        return Int(duration / 60)
+    }
+    
     /// Mark as used (user opened a blocked app)
     func markAsUsed() {
         self.wasUsed = true
