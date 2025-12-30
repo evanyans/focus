@@ -20,6 +20,7 @@ enum OnboardingStep: Int, CaseIterable {
 /// Onboarding view for schedule-based app blocking
 struct NewOnboardingView: View {
     @Environment(\.modelContext) private var modelContext
+    
     @ObservedObject var screenTimeService = ScreenTimeService.shared
     @ObservedObject var appSettings = AppSettings.shared
     
@@ -28,6 +29,8 @@ struct NewOnboardingView: View {
     @State private var showScheduleEditor = false
     @State private var hasRequestedScreenTime = false
     @State private var hasRequestedNotifications = false
+    @State private var selectedPreset: PresetType? = nil
+    @State private var hasCreatedCustomSchedule = false
     
     let onComplete: () -> Void
     
@@ -68,6 +71,8 @@ struct NewOnboardingView: View {
                                 .background(PaperTheme.buttonPrimary)
                                 .cornerRadius(12)
                         }
+                        .disabled(!isPrimaryButtonEnabled)
+                        .opacity(isPrimaryButtonEnabled ? 1.0 : 0.5)
                         
                         HStack(spacing: 20) {
                             if currentStep != .welcome {
@@ -100,7 +105,12 @@ struct NewOnboardingView: View {
             AppSelectionView()
         }
         .sheet(isPresented: $showScheduleEditor) {
-            ScheduleEditorView()
+            ScheduleEditorView(onScheduleCreated: {
+                // Callback fired when schedule is successfully saved
+                print("✅ Schedule created callback fired")
+                hasCreatedCustomSchedule = true
+                selectedPreset = nil
+            })
         }
     }
     
@@ -259,7 +269,7 @@ struct NewOnboardingView: View {
                 .font(.title.bold())
                 .foregroundColor(PaperTheme.textPrimary)
             
-            Text("Set when apps should be blocked. You can create multiple schedules later.")
+            Text("Choose a preset or create a custom schedule. You can add more later.")
                 .font(.body)
                 .foregroundColor(PaperTheme.textSecondary)
                 .multilineTextAlignment(.center)
@@ -267,40 +277,128 @@ struct NewOnboardingView: View {
             
             // Quick preset buttons
             VStack(spacing: 12) {
-                Button(action: { createPresetSchedule(type: .work) }) {
-                    HStack {
+                // Work Hours Preset
+                Button(action: { 
+                    selectedPreset = (selectedPreset == .work) ? nil : .work
+                    hasCreatedCustomSchedule = false
+                }) {
+                    HStack(spacing: 16) {
                         Image(systemName: "briefcase.fill")
-                        Text("Work Hours (9 AM - 5 PM)")
+                            .font(.title2)
+                            .foregroundColor(selectedPreset == .work ? PaperTheme.buttonPrimaryText : PaperTheme.textPrimary)
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Work Hours")
+                                .font(.headline)
+                            Text("9:00 AM - 5:00 PM • Mon-Fri")
+                                .font(.caption)
+                                .foregroundColor(selectedPreset == .work ? PaperTheme.buttonPrimaryText.opacity(0.8) : PaperTheme.textSecondary)
+                        }
+                        
                         Spacer()
+                        
+                        if selectedPreset == .work {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(PaperTheme.accentGreen)
+                        }
                     }
+                    .foregroundColor(selectedPreset == .work ? PaperTheme.buttonPrimaryText : PaperTheme.textPrimary)
                     .padding()
-                    .background(PaperTheme.cardBackground)
-                    .cornerRadius(10)
+                    .background(selectedPreset == .work ? PaperTheme.buttonPrimary : PaperTheme.cardBackground)
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(selectedPreset == .work ? PaperTheme.accentGreen : PaperTheme.border, lineWidth: selectedPreset == .work ? 2 : 1)
+                    )
                 }
                 
-                Button(action: { createPresetSchedule(type: .sleep) }) {
-                    HStack {
+                // Sleep Time Preset
+                Button(action: { 
+                    selectedPreset = (selectedPreset == .sleep) ? nil : .sleep
+                    hasCreatedCustomSchedule = false
+                }) {
+                    HStack(spacing: 16) {
                         Image(systemName: "moon.fill")
-                        Text("Sleep Time (10 PM - 7 AM)")
+                            .font(.title2)
+                            .foregroundColor(selectedPreset == .sleep ? PaperTheme.buttonPrimaryText : PaperTheme.textPrimary)
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Sleep Time")
+                                .font(.headline)
+                            Text("10:00 PM - 7:00 AM • Daily")
+                                .font(.caption)
+                                .foregroundColor(selectedPreset == .sleep ? PaperTheme.buttonPrimaryText.opacity(0.8) : PaperTheme.textSecondary)
+                        }
+                        
                         Spacer()
+                        
+                        if selectedPreset == .sleep {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(PaperTheme.accentGreen)
+                        }
                     }
+                    .foregroundColor(selectedPreset == .sleep ? PaperTheme.buttonPrimaryText : PaperTheme.textPrimary)
                     .padding()
-                    .background(PaperTheme.cardBackground)
-                    .cornerRadius(10)
+                    .background(selectedPreset == .sleep ? PaperTheme.buttonPrimary : PaperTheme.cardBackground)
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(selectedPreset == .sleep ? PaperTheme.accentGreen : PaperTheme.border, lineWidth: selectedPreset == .sleep ? 2 : 1)
+                    )
                 }
                 
-                Button(action: { showScheduleEditor = true }) {
-                    HStack {
+                // Custom Schedule
+                Button(action: { 
+                    showScheduleEditor = true 
+                }) {
+                    HStack(spacing: 16) {
                         Image(systemName: "plus.circle.fill")
-                        Text("Custom Schedule")
+                            .font(.title2)
+                            .foregroundColor(hasCreatedCustomSchedule ? PaperTheme.accentGreen : PaperTheme.textPrimary)
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Custom Schedule")
+                                .font(.headline)
+                            Text(hasCreatedCustomSchedule ? "Schedule created" : "Create your own")
+                                .font(.caption)
+                                .foregroundColor(PaperTheme.textSecondary)
+                        }
+                        
                         Spacer()
+                        
+                        if hasCreatedCustomSchedule {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(PaperTheme.accentGreen)
+                        } else {
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(PaperTheme.textTertiary)
+                        }
                     }
+                    .foregroundColor(PaperTheme.textPrimary)
                     .padding()
                     .background(PaperTheme.cardBackground)
-                    .cornerRadius(10)
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(hasCreatedCustomSchedule ? PaperTheme.accentGreen : PaperTheme.border, lineWidth: hasCreatedCustomSchedule ? 2 : 1)
+                    )
                 }
             }
-            .foregroundColor(PaperTheme.textPrimary)
+            
+            // Skip option
+            Button(action: {
+                // Skip schedule creation, just complete onboarding
+                onComplete()
+            }) {
+                Text("Skip for now")
+                    .font(.subheadline)
+                    .foregroundColor(PaperTheme.textTertiary)
+                    .underline()
+            }
+            .padding(.top, 8)
         }
     }
     
@@ -317,7 +415,20 @@ struct NewOnboardingView: View {
         case .selectApps:
             return appSettings.selectedApps.applicationTokens.count > 0 ? "Continue" : "Select Apps"
         case .createSchedule:
-            return "Finish"
+            if selectedPreset != nil || hasCreatedCustomSchedule {
+                return "Finish Setup"
+            } else {
+                return "Select a Schedule"
+            }
+        }
+    }
+    
+    private var isPrimaryButtonEnabled: Bool {
+        switch currentStep {
+        case .createSchedule:
+            return selectedPreset != nil || hasCreatedCustomSchedule
+        default:
+            return true
         }
     }
     
@@ -362,7 +473,13 @@ struct NewOnboardingView: View {
             }
             
         case .createSchedule:
-            onComplete()
+            // Create the selected preset schedule if any
+            if let preset = selectedPreset {
+                createPresetSchedule(type: preset)
+            } else if hasCreatedCustomSchedule {
+                // Custom schedule already created, just complete
+                onComplete()
+            }
         }
     }
     

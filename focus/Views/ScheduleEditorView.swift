@@ -12,10 +12,12 @@ struct ScheduleEditorView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
-    @State private var scheduleName: String = ""
+    @State private var scheduleName: String = "Custom"
     @State private var startTime: Date = Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: Date()) ?? Date()
     @State private var endTime: Date = Calendar.current.date(bySettingHour: 17, minute: 0, second: 0, of: Date()) ?? Date()
     @State private var selectedDays: Set<Int> = [2, 3, 4, 5, 6] // Mon-Fri
+    
+    var onScheduleCreated: (() -> Void)? = nil
     
     let daysOfWeek = [
         (1, "Sun"),
@@ -212,7 +214,12 @@ struct ScheduleEditorView: View {
             isEnabled: true
         )
         
+        ScheduleService.shared.setModelContext(modelContext)
         ScheduleService.shared.addSchedule(schedule)
+        
+        // Notify parent that schedule was created
+        onScheduleCreated?()
+        
         dismiss()
     }
 }
