@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E237D7B62F04865300BFB765 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = E237D7B52F04865300BFB765 /* FirebaseAuth */; };
+		E237D7B82F04865300BFB765 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = E237D7B72F04865300BFB765 /* FirebaseFirestore */; };
+		E237D7BA2F04865300BFB765 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = E237D7B92F04865300BFB765 /* FirebaseMessaging */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		E2AEC2622EEE5F34002F8616 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,9 +35,30 @@
 		E2AEC26B2EEE5F34002F8616 /* focusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = focusUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E237D7B22F047E8D00BFB765 /* Exceptions for "focus" folder in "focusTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"GoogleService-Info.plist",
+			);
+			target = E2AEC2602EEE5F34002F8616 /* focusTests */;
+		};
+		E237D7B32F047E8D00BFB765 /* Exceptions for "focus" folder in "focusUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"GoogleService-Info.plist",
+			);
+			target = E2AEC26A2EEE5F34002F8616 /* focusUITests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E2AEC2542EEE5F32002F8616 /* focus */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E237D7B22F047E8D00BFB765 /* Exceptions for "focus" folder in "focusTests" target */,
+				E237D7B32F047E8D00BFB765 /* Exceptions for "focus" folder in "focusUITests" target */,
+			);
 			path = focus;
 			sourceTree = "<group>";
 		};
@@ -52,6 +79,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E237D7BA2F04865300BFB765 /* FirebaseMessaging in Frameworks */,
+				E237D7B62F04865300BFB765 /* FirebaseAuth in Frameworks */,
+				E237D7B82F04865300BFB765 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +142,9 @@
 			);
 			name = focus;
 			packageProductDependencies = (
+				E237D7B52F04865300BFB765 /* FirebaseAuth */,
+				E237D7B72F04865300BFB765 /* FirebaseFirestore */,
+				E237D7B92F04865300BFB765 /* FirebaseMessaging */,
 			);
 			productName = focus;
 			productReference = E2AEC2522EEE5F32002F8616 /* focus.app */;
@@ -195,6 +228,9 @@
 			);
 			mainGroup = E2AEC2492EEE5F32002F8616;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E237D7B42F04865200BFB765 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E2AEC2532EEE5F32002F8616 /* Products */;
 			projectDirPath = "";
@@ -430,7 +466,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = U846K5Z26Y;
+				DEVELOPMENT_TEAM = NSL86F37B9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -442,7 +478,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.evanyan.focus;
+				PRODUCT_BUNDLE_IDENTIFIER = com.evanyan.focusfamily;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -575,6 +611,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E237D7B42F04865200BFB765 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.7.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E237D7B52F04865300BFB765 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E237D7B42F04865200BFB765 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		E237D7B72F04865300BFB765 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E237D7B42F04865200BFB765 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		E237D7B92F04865300BFB765 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E237D7B42F04865200BFB765 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E2AEC24A2EEE5F32002F8616 /* Project object */;
 }
